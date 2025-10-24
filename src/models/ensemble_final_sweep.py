@@ -1,15 +1,3 @@
-# src/models/ensemble_final_sweep.py
-"""
-Grid-sweep ensemble weight optimization (RF + CNN + LSTM)
-and finalize using best-F1 configuration at threshold 0.40.
-Outputs:
- - results/ensemble_final_predictions_thr0.40.csv
- - results/ensemble_final_metrics.json
- - plots/ensemble_confusion_thr0.40.png
- - results/weight_sweep_full.csv
- - results/weight_sweep_top_f1.csv
- - results/weight_sweep_top_auc.csv
-"""
 
 import numpy as np, pandas as pd, joblib, json, itertools, matplotlib.pyplot as plt
 from pathlib import Path
@@ -17,9 +5,6 @@ from tensorflow.keras.models import load_model
 from sklearn.metrics import roc_auc_score, precision_recall_fscore_support, confusion_matrix, classification_report
 from sklearn.model_selection import StratifiedShuffleSplit
 
-# -----------------------
-# CONFIG
-# -----------------------
 ROOT = Path.cwd()
 MODELS = ROOT / "models"
 PROC = ROOT / "data" / "processed"
@@ -27,9 +12,7 @@ OUT = ROOT / "results"; OUT.mkdir(exist_ok=True, parents=True)
 PLOTS = ROOT / "plots"; PLOTS.mkdir(exist_ok=True, parents=True)
 THR = 0.40
 
-# -----------------------
-# Load Data
-# -----------------------
+#Load Test Data
 a = np.load(PROC / "data_train_T7_bycity.npz")
 X, y = a["X"], a["y"]
 n = len(y)
@@ -38,9 +21,7 @@ sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
 _, test_idx = next(sss.split(Xf, y))
 X_test_seq, X_test_flat, y_test = X[test_idx], Xf[test_idx], y[test_idx]
 
-# -----------------------
 # Load Models
-# -----------------------
 rf = joblib.load(MODELS / "randomforest.pkl")
 rf_p = rf.predict_proba(X_test_flat)[:, 1]
 
@@ -67,9 +48,7 @@ for p in ["lstm_tuned_model_final.h5", "lstm_model_final_new.h5", "lstm_model_fi
         except Exception as e:
             print(f"Could not load {p}: {e}")
 
-# -----------------------
-# Weight Sweep
-# -----------------------
+#Weight Sweep
 grid = np.linspace(0, 1, 11)
 records = []
 for w_rf in grid:
@@ -99,9 +78,7 @@ best_f1 = df.loc[df["f1"].idxmax()]
 print("\n🔹 Best by AUC:", best_auc.to_dict())
 print("🔹 Best by F1:", best_f1.to_dict())
 
-# -----------------------
-# Finalize Ensemble using Best-F1 Weights
-# -----------------------
+# Final Ensemble with Best F1 Weights
 w_rf, w_cnn, w_lstm = best_f1["w_rf"], best_f1["w_cnn"], best_f1["w_lstm"]
 p_ens = (w_rf * rf_p + w_cnn * cnn_p + w_lstm * lstm_p) / (w_rf + w_cnn + w_lstm)
 pred = (p_ens >= THR).astype(int)
@@ -116,9 +93,7 @@ print(f"AUC: {auc_final:.4f}")
 print(report)
 print("Confusion matrix:\n", cm.tolist())
 
-# -----------------------
-# Save Outputs
-# -----------------------
+#Save Outputs
 out_df = pd.DataFrame(
     {"index": test_idx, "probability": p_ens, "prediction": pred, "true": y_test}
 )

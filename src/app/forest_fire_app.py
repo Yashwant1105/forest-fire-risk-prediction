@@ -17,7 +17,7 @@ RESULTS_DIR = ROOT / "results"; RESULTS_DIR.mkdir(exist_ok=True, parents=True)
 PLOTS_DIR = ROOT / "plots"; PLOTS_DIR.mkdir(exist_ok=True, parents=True)
 
 st.set_page_config(page_title="Forest Fire Risk Predictor", page_icon="🔥", layout="centered")
-st.title("🔥 Forest Fire Risk Prediction Dashboard (Optimized Ensemble)")
+st.title("🔥 Forest Fire Risk Prediction Dashboard ")
 
 # Sidebar - Settings
 st.sidebar.header("⚙️ Settings")
@@ -380,8 +380,8 @@ st.info(f"Ensemble probability: **{p_ens:.3f}** → **{label}** (threshold {thr:
 
 def log_run(csv_path, row):
     header = ["timestamp_utc","city","mode","live_ok","start_date","end_date",
-              "w_rf","w_cnn","w_lstm","threshold","probability","prediction","label",
-              "ndvi_override","elevation_override"]
+            "w_rf","w_cnn","w_lstm","threshold","probability","prediction","label",
+            "ndvi_override","elevation_override"]
     exists = os.path.exists(csv_path)
     with open(csv_path, "a", newline="") as f:
         writer = csv.writer(f)

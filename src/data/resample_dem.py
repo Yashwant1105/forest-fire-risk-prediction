@@ -1,4 +1,3 @@
-# src/data/resample_dem.py
 import rasterio
 from rasterio.warp import calculate_default_transform, reproject, Resampling
 from pathlib import Path

@@ -1,4 +1,3 @@
-# src/models/run_quick_rf.py
 import numpy as np, pandas as pd, joblib, json, os
 from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
@@ -13,8 +12,7 @@ OUTMODELS = ROOT/'models'; OUTMODELS.mkdir(parents=True, exist_ok=True)
 OUTRESULTS = ROOT/'results'; OUTRESULTS.mkdir(parents=True, exist_ok=True)
 OUTPLOTS = ROOT/'plots'; OUTPLOTS.mkdir(parents=True, exist_ok=True)
 
-# Config: lower n_estimators for speed; increase if you have more time/GPU not relevant for RF
-N_ESTIMATORS = 100  # set to 50 if you need even faster run
+N_ESTIMATORS = 100  
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 
@@ -22,7 +20,6 @@ print("Loading sequences (bycity)...")
 a = np.load(PROC/'data_train_T7_bycity.npz')
 X = a['X']; y = a['y']
 print("X,y shapes:", X.shape, y.shape)
-# Flatten (temporal features)
 n,T,F = X.shape
 Xf = X.reshape((n, T*F))
 
@@ -54,9 +51,8 @@ with open(OUTRESULTS/'rf_metrics.json','w') as f:
 print("Saved model to", OUTMODELS/'randomforest.pkl')
 print("Saved metrics to", OUTRESULTS/'rf_metrics.json')
 
-# feature importances (temporal flatten -> reshape to T x F for interpretation)
-importances = clf.feature_importances_  # length T*F
-# create heatmap-like plot: T rows x F cols
+importances = clf.feature_importances_
+
 imp_mat = importances.reshape(T, F)
 plt.figure(figsize=(8,4))
 plt.imshow(imp_mat, aspect='auto')
@@ -81,9 +77,7 @@ print("Saved ROC curve to", OUTPLOTS/'rf_roc_curve.png')
 # Quick risk map: predict probability on meta and plot
 meta_df = pd.read_csv(PROC/'data_train_T7_bycity_meta.csv')
 if len(meta_df) != len(Xf):
-    # if meta doesn't match X (unlikely) try the bycity meta file used for sequences
     print("Meta length and X length differ: meta_len=%d, X_len=%d" % (len(meta_df), len(Xf)))
-# We'll compute rf proba on the full flattened X and join to meta rows by index
 probas_all = clf.predict_proba(Xf)[:,1]
 meta_df = meta_df.copy()
 meta_df['rf_proba'] = probas_all
@@ -94,13 +88,12 @@ m = folium.Map(location=center, zoom_start=7)
 for _, row in meta_df.iterrows():
     lat = row['lat']; lon = row['lon']
     p = float(row['rf_proba'])
-    # color ramp red->green
     import colorsys
     # use red for high risk: color from green (low) to red (high)
     r = int(255 * p); g = int(255 * (1-p)); b = 0
     folium.CircleMarker(location=[lat, lon], radius=4, color=None, fill=True, fill_opacity=0.7,
                         fill_color=f'#{r:02x}{g:02x}{b:02x}', popup=f"{row.get('city',row.get('cell_id',''))} {row.get('date','')}: {p:.3f}"
-                       ).add_to(m)
+                    ).add_to(m)
 # save map
 map_path = OUTRESULTS/'rf_risk_map.html'
 m.save(map_path)

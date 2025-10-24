@@ -1,4 +1,3 @@
-# src/data/create_sequences_by_city.py  (FIX #2)
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -15,16 +14,14 @@ print("Loading dataset:", IN)
 df = pd.read_csv(IN)
 print("Rows:", len(df))
 
-# ensure types
 df['date'] = pd.to_datetime(df['date'])
 required_city_col = 'nearest_city'
 if required_city_col not in df.columns:
     raise SystemExit(f"Column {required_city_col} not found in dataset.")
 
-# features to use
 features = ['temp', 'humidity', 'rain', 'ndvi', 'elevation', 'dryness_index']
 
-# 1) Fill NDVI missing values with city mean (small: ~59 entries)
+# 1) Fill NDVI missing values with city mean 
 if df['ndvi'].isna().sum() > 0:
     print("NDVI missing:", df['ndvi'].isna().sum(), "-> filling with city mean")
     df['ndvi'] = df.groupby('nearest_city')['ndvi'].transform(lambda x: x.fillna(x.mean()))
