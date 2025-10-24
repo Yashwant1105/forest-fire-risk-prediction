@@ -1,24 +1,24 @@
-# Python / Virtualenv
 __pycache__/
 *.pyc
 .venv/
 venv/
 .env
 
-# Editors / OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# Large data & models (do not commit)
+models/*.h5
+models/*.hdf5
+models/*.pkl
+models/*.npz
 data/raw/
 data/processed/
-models/
 results/
 plots/
 
-# Credentials
-*.json
-*.key
+!src/models/*.py
 !src/models/ensemble_final_sweep.py
+
+*.ipynb_checkpoints
