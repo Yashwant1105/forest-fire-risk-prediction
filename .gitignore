@@ -3,12 +3,10 @@ __pycache__/
 .venv/
 venv/
 .env
-
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-
 models/*.h5
 models/*.hdf5
 models/*.pkl
@@ -17,7 +15,7 @@ data/raw/
 data/processed/
 results/
 plots/
-
+#exceptions
 !src/models/*.py
 !src/models/ensemble_final_sweep.py
 
