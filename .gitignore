@@ -21,3 +21,4 @@ plots/
 # Credentials
 *.json
 *.key
+!src/models/ensemble_final_sweep.py
