@@ -1,0 +1,23 @@
+# Python / Virtualenv
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Large data & models (do not commit)
+data/raw/
+data/processed/
+models/
+results/
+plots/
+
+# Credentials
+*.json
+*.key
